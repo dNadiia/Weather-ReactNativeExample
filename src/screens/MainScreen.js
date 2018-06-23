@@ -4,13 +4,13 @@ import {
     Text,
     View,
     FlatList,
-    StyleSheet,
-    SegmentedControlIOS
+    StyleSheet
 } from 'react-native';
 import {connect} from 'react-redux';
+import SwitchSelector from 'react-native-switch-selector';
 
+import colors from '../colors';
 import {actionGetWeather} from '../actions/weather'
-
 import DayItemView from '../components/DayItemView';
 import TemperatureChart from '../components/TemperatureChart';
 
@@ -18,9 +18,10 @@ class MainScreen extends Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
-            range: [2, 5, 7],
-            selectedRangeIndex: 1,
+            range: [{label: '2 Days', value: 2}, {label: '5 Days', value: 5}, {label: 'Week', value: 7}],
+            selectedRangeValue: 2,
             selectedDayIndex: 0
         };
     }
@@ -31,40 +32,40 @@ class MainScreen extends Component {
 
     render() {
         const {location, forecast, loading} = this.props;
-        const {range, selectedRangeIndex, selectedDayIndex} = this.state;
+        const {range, selectedRangeValue, selectedDayIndex} = this.state;
         if (loading === false && forecast.length > 0) {
             return (
                 <View style={styles.container}>
                     <View style={styles.head}>
                         <Text style={styles.headTitle}>{`${location.city}, ${location.country}`}</Text>
                     </View>
-                    <FlatList
-                        ref={(ref) => {this.flatListRef = ref;}}
-                        data={forecast}
-                        horizontal={true}
-                        scrollEnabled={false}
-                        showsHorizontalScrollIndicator={false}
-                        keyExtractor={(item) => item.date}
-                        renderItem={({item}) => <DayItemView model={item}/>}
-                    />
+                    <View>
+                        <FlatList
+                            ref={(ref) => {
+                                this.flatListRef = ref;
+                            }}
+                            data={forecast}
+                            horizontal={true}
+                            scrollEnabled={false}
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={(item) => item.date}
+                            renderItem={({item}) => <DayItemView model={item}/>}
+                        />
+                    </View>
                     <TemperatureChart
-                        data={forecast.slice(0, range[selectedRangeIndex])}
+                        data={forecast.slice(0, selectedRangeValue)}
                         selectedIndex={selectedDayIndex}
                         onPress={this._onChartItemPress}
                     />
-                    <SegmentedControlIOS
-                        style={styles.segment}
-                        values={['2 Days', '5 Days', 'Week']}
-                        selectedIndex={selectedRangeIndex}
-                        tintColor='#708090'
-                        onChange={(event) => {
-                            this.setState({
-                                selectedDayIndex: 0,
-                                selectedRangeIndex: event.nativeEvent.selectedSegmentIndex
-                            });
-                            this.flatListRef.scrollToIndex({animated: false, index: 0});
-                        }}
-                    />
+                    <View style={styles.segment}>
+                        <SwitchSelector
+                            options={range}
+                            initial={0}
+                            backgroundColor={colors.primary}
+                            buttonColor={colors.accent}
+                            textColor='#eee'
+                            onPress={this._onSwitchSelectorPress}/>
+                    </View>
                 </View>
             );
         } else {
@@ -79,6 +80,11 @@ class MainScreen extends Component {
     _onChartItemPress = (index) => {
         this.setState({selectedDayIndex: index});
         this.flatListRef.scrollToIndex({animated: true, index});
+    }
+
+    _onSwitchSelectorPress = (value) => {
+        this.setState({selectedDayIndex: 0, selectedRangeValue: value});
+        this.flatListRef.scrollToIndex({animated: false, index: 0});
     }
 }
 
@@ -111,11 +117,11 @@ const styles = StyleSheet.create({
     head: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40
+        marginTop: 30
     },
     headTitle: {
-        color: '#708090',
-        fontSize: 24,
+        color: colors.text,
+        fontSize: 22,
         textAlign: 'center'
     },
     progress: {
@@ -124,6 +130,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     segment: {
-        margin: 20
+        marginHorizontal: 20,
+        marginVertical: 15
     }
 });

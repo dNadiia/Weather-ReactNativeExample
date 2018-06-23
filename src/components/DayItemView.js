@@ -8,9 +8,11 @@ import {
     StyleSheet,
     Dimensions
 } from 'react-native';
+import moment from 'moment';
+import colors from '../colors';
 
 const DayItemView = ({model}) => {
-    const date = new Date(model.date).toLocaleDateString("en-US", {weekday: 'long', day: 'numeric'});
+    const date = moment(new Date(model.date)).format('D dddd');
     const temperature = model.temperature.min.toFixed() + '...' + model.temperature.max.toFixed() + '\u2103';
     return (
         <View style={styles.root}>
@@ -35,28 +37,28 @@ export default DayItemView;
 const styles = StyleSheet.create({
     root: {
         width: Dimensions.get('window').width,
-        justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginVertical: 20
     },
     icon: {
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
         marginVertical: 5
     },
     temperatureText: {
-        color: '#5091d7',
-        fontSize: 24,
+        color: colors.primary,
+        fontSize: 20,
         fontWeight: '700',
         textAlign: 'center',
         marginVertical: 5
     },
     dateText: {
-        color: '#708090',
-        fontSize: 24,
+        color: colors.text,
+        fontSize: 20,
         textAlign: 'center'
     },
     infoText: {
-        color: '#708090',
+        color: colors.text,
         fontSize: 14,
         textAlign: 'center',
         marginBottom: 5

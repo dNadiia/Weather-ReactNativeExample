@@ -4,9 +4,12 @@ import {
     View,
     StyleSheet
 } from 'react-native';
+import moment from 'moment';
 import * as scale from 'd3-scale';
 import {Text} from 'react-native-svg';
 import {BarChart, XAxis} from 'react-native-svg-charts';
+import colors from '../colors';
+
 
 const TemperatureChart = ({data, selectedIndex, onPress}) => {
 
@@ -14,11 +17,11 @@ const TemperatureChart = ({data, selectedIndex, onPress}) => {
         {
             value: {
                 mark: object.temperature.avg,
-                xAccessor: new Date(object.date).toLocaleDateString("en-US", {weekday: 'short', day: 'numeric'}),
+                xAccessor: moment(new Date(object.date)).format('D ddd'),
                 yAccessor: object.temperature.avg.toFixed() + '\u2103'
             },
             svg: {
-                fill: index === selectedIndex ? '#416097' : '#5091D7',
+                fill: index === selectedIndex ? colors.accent : colors.primary,
                 opacity: object.temperature.avg > 0 ? 1.0 : 0.8,
                 onPress: () => onPress(index)
             }
@@ -33,7 +36,7 @@ const TemperatureChart = ({data, selectedIndex, onPress}) => {
                 x={x(index) + (bandwidth / 2)}
                 y={object.value.mark < CUT_OFF ? y(object.value.mark) - 10 : y(object.value.mark) + 15}
                 fontSize={14}
-                fill={object.value.mark >= CUT_OFF ? 'white' : '#708090'}
+                fill={object.value.mark >= CUT_OFF ? 'white' : colors.text}
                 alignmentBaseline={'middle'}
                 textAnchor={'middle'}
             >
@@ -48,6 +51,7 @@ const TemperatureChart = ({data, selectedIndex, onPress}) => {
                 <BarChart
                     style={styles.chart}
                     data={_data}
+                    contentInset={{top: 20, bottom: 10}}
                     yAccessor={({item}) => item.value.mark}
                     spacing={0.2}
                     gridMin={0}
@@ -61,7 +65,7 @@ const TemperatureChart = ({data, selectedIndex, onPress}) => {
                 xAccessor={({item}) => item.value.xAccessor}
                 svg={{
                     fontSize: 12,
-                    fill: '#708090'
+                    fill: colors.text
                 }}
             />
         </View>
@@ -79,14 +83,12 @@ export default TemperatureChart;
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        marginVertical: 10
     },
     container: {
         flex: 1,
         flexDirection: 'row'
     },
     chart: {
-        flex: 1,
-        marginVertical: 10
+        flex: 1
     }
 });
